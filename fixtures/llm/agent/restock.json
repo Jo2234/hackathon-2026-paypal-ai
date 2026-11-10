@@ -1,0 +1,24 @@
+{
+  "fixture": true,
+  "origin": "handwritten",
+  "input": "Restock coffee and printer cleaning supplies",
+  "output": {
+    "proposalId": "restock",
+    "mandateId": "demo-mandate",
+    "lines": [
+      {
+        "sku": "COF-001",
+        "qty": 2
+      },
+      {
+        "sku": "PRT-004",
+        "qty": 1
+      }
+    ],
+    "source": {
+      "kind": "agent",
+      "mode": "fixture",
+      "model": "handwritten-a1"
+    }
+  }
+}

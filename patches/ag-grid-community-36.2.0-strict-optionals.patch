@@ -1,0 +1,20 @@
+--- a/dist/types/src/interfaces/iFrameworkOverrides.d.ts
++++ b/dist/types/src/interfaces/iFrameworkOverrides.d.ts
+@@ -30,5 +30,5 @@
+      */
+     runWhenReadyAsync?(): boolean;
+     /** True when modules are provided via AgGridProvider React context, used for accurate missing module error messages */
+-    readonly usesAgGridProvider?: boolean;
++    readonly usesAgGridProvider?: boolean | undefined;
+ }
+--- a/dist/types/src/rendering/cellRenderers/iCellRenderer.d.ts
++++ b/dist/types/src/rendering/cellRenderers/iCellRenderer.d.ts
+@@ -17,7 +17,7 @@
+     /** True if this is a full width row. */
+     fullWidth?: boolean;
+     /** Pinned state of the cell. */
+-    pinned?: 'left' | 'right' | null;
++    pinned?: 'left' | 'right' | null | undefined;
+     /** The row's data. Data property can be `undefined` when row grouping or loading infinite row models. */
+     data: TData | undefined;
+     /** The row node. */

@@ -1,0 +1,42 @@
+export type Currency = 'USD' | 'EUR' | 'SGD' | 'JPY' | 'HUF' | 'TWD';
+export type Money = Readonly<{ currency: Currency; minor: number }>;
+export const CATEGORY_IDS = ['coffee_tea', 'pantry_snacks', 'paper', 'printer_supplies', 'cleaning', 'desk_supplies', 'gift_cards', 'alcohol', 'electronics', 'furniture'] as const;
+export type CategoryId = typeof CATEGORY_IDS[number];
+export type CatalogueItem = Readonly<{ sku: string; name: string; description: string; unitPriceMinor: number; currency: 'USD'; imageAlt: string }>;
+export type EnforcementCatalogue = Readonly<Record<string, Readonly<{ unitPriceMinor: number; currency: Currency }>>>;
+export type CategoryMap = Readonly<Record<string, CategoryId>>;
+export type RefundRestoration = 'restore_on_completed_refund' | 'never_restore';
+export type Compiler = Readonly<{ mode: 'fixture' | 'local' | 'hosted'; model: string; promptVersion: string }> | Readonly<{ mode: 'manual' }>;
+export type PolicyStatus = 'DRAFT' | 'ACTIVE' | 'REVOKED' | 'EXPIRED' | 'SUPERSEDED';
+export type MandatePolicy = Readonly<{
+  policyVersion: 1; ownerId: string; mandateId: string; version: number; status: PolicyStatus; currency: 'USD';
+  period: Readonly<{ kind: 'weekly'; timezone: 'Asia/Singapore'; weekStartsOn: 1 }>;
+  allowanceMinor: number; perOrderMaxMinor: number; perLineMaxMinor: number; stepUpThresholdMinor: number;
+  allowedCategories: readonly CategoryId[]; deniedCategories: readonly CategoryId[]; deniedSkus: readonly string[];
+  maxQuantityPerLine: number; maxLinesPerCart: number; expiresAt: string; refundRestoration: RefundRestoration;
+  merchantId: string; sourceText: string; compiledBy: Compiler; signedAt: string | null; contentHash: string | null;
+}>;
+export type MandateDraft = MandatePolicy & Readonly<{ status: 'DRAFT'; signedAt: null; contentHash: null }>;
+export type SignedMandate = MandatePolicy & Readonly<{ signedAt: string; contentHash: string }>;
+export type OwnerReview = Readonly<{ confirm: true; expectedCurrentHash: string | null; explicitlyAllowedSensitive: readonly ('gift_cards' | 'alcohol')[] }>;
+export type CartProposal = Readonly<{ proposalId: string; mandateId: string; lines: readonly Readonly<{ sku: string; qty: number }>[];
+  source: Readonly<{ kind: 'owner' }> | Readonly<{ kind: 'agent'; mode: 'fixture' | 'local' | 'hosted'; model: string }> }>;
+export const RULE_IDS = ['R01_MANDATE_NOT_ACTIVE','R02_MANDATE_EXPIRED','R03_CURRENCY','R04_UNKNOWN_SKU','R05_CATEGORY_DENIED','R06_CATEGORY_NOT_ALLOWED','R07_SKU_DENIED','R08_QTY','R09_LINE_MAX','R10_ORDER_MAX','R11_INSUFFICIENT_ALLOWANCE','R12_STEP_UP_REQUIRED','R13_MERCHANT','R14_CART_SHAPE','R15_DUPLICATE_SKU','R16_SCHEMA'] as const;
+export type RuleId = typeof RULE_IDS[number];
+export type LineVerdict = Readonly<{ sku: string; qty: number; categoryId: CategoryId | null; lineTotalMinor: number | null; ok: boolean; ruleIds: readonly RuleId[]; satisfiedClauses: readonly string[] }>;
+export type CartVerdict = Readonly<{ proposalId: string; policyVersion: number; policyHash: string; ok: boolean; stepUpRequired: boolean; lines: readonly LineVerdict[]; ruleIds: readonly RuleId[]; itemTotalMinor: number | null; shippingMinor: number; orderTotalMinor: number | null }>;
+export type ReservationState = 'HELD' | 'CREATING' | 'CREATE_UNKNOWN' | 'ORDER_CREATED' | 'APPROVED' | 'CAPTURING' | 'CAPTURE_PROVIDER_PENDING' | 'CAPTURE_UNKNOWN' | 'CAPTURED' | 'RELEASED';
+export type RefundState = 'REQUESTED' | 'SUBMITTING' | 'PROVIDER_PENDING' | 'REFUND_UNKNOWN' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+export type OperationKind = 'ORDER_CREATE' | 'ORDER_CAPTURE' | 'REFUND_CREATE';
+export type OperationState = 'READY' | 'SENDING' | 'DONE' | 'FAILED_DEFINITIVE' | 'UNKNOWN' | 'MANUAL';
+export type AnomalyReason = 'CAPTURE_OVER_HOLD' | 'CAPTURE_AFTER_RELEASE' | 'CURRENCY_MISMATCH' | 'UNKNOWN_CAPTURE_ID' | 'PROVIDER_REVERSAL' | 'UNMATCHED_PROVIDER_REFUND' | 'REFUND_TERMINAL_CONTRADICTION' | 'ORDER_FOR_UNKNOWN_RESERVATION' | 'AMOUNT_CONTRADICTION' | 'AMOUNT_OUT_OF_RANGE' | 'NEGATIVE_AVAILABLE' | 'REFUND_OVER_CAPTURE' | 'CAPTURE_TERMINAL_CONTRADICTION';
+export type BudgetSnapshot = Readonly<{ ownerId: string; periodKey: string; allowanceMinor: number; reservedMinor: number; capturedMinor: number; refundedCompletedMinor: number; restoredMinor: number; externalRefundedMinor: number; availableMinor: number; spendBlocked: boolean; spendBlockReasons: readonly string[] }>;
+export type Reservation = Readonly<{ id: string; ownerId: string; mandateId: string; policyVersion: number; policyHash: string; periodKey: string; restoration: RefundRestoration; state: ReservationState; amount: number; holdMinor: number; capturedMinor: number; externalRefundedMinor: number; orderId: string | null; anomalyReasons: readonly AnomalyReason[]; releaseOnResolve: boolean; createdAt: number; updatedAt: number }>;
+export type Refund = Readonly<{ id: string; captureId: string; reservationId: string; amount: number; state: RefundState; completedApplied: boolean; providerRefundId: string | null; createdAt: number; updatedAt: number }>;
+export type Operation = Readonly<{ id: string; kind: OperationKind; subjectId: string; requestId: string; canonicalBody: string; bodyHash: string; state: OperationState; attempt: 0 | 1; ownerToken: string | null; claimedAt: number | null; sendDeadline: number | null; horizonUntil: number | null; nextGetAt: number | null; getAttempts: number; expiresAt: number; createdAt: number; updatedAt: number }>;
+export type FactEvidence = Readonly<{ resourceId: string; payloadHash: string; boundedRedactedJson: string; source: 'fixture' | 'sandbox'; observedAt: number }>;
+// S2 must establish correlation through authenticated response or GET before calling reducers.
+// A webhook body alone cannot construct an authoritative observation.
+export type CaptureObservation = Readonly<{ captureId: string; orderId: string; currency: string; amount: string; status: 'COMPLETED' | 'PENDING' | 'DECLINED' | 'REVERSED'; evidence: FactEvidence }>;
+export type RefundObservation = Readonly<{ refundId: string; captureId: string; currency: string; amount: string; status: 'COMPLETED' | 'PENDING' | 'FAILED' | 'CANCELLED'; evidence: FactEvidence }>;
+export type LedgerKind = 'RESERVE' | 'RELEASE' | 'ORDER' | 'APPROVE' | 'CAPTURE' | 'REFUND_REQ' | 'REFUND_DONE' | 'REFUND_FAIL' | 'RESTORE' | 'REVOKE' | 'SIGN' | 'REJECT' | 'WEBHOOK' | 'RECONCILE' | 'ANOMALY' | 'DISPOSITION';

@@ -1,0 +1,27 @@
+// Only fixed, tiny dependency-free pure assertions. No DB/network/properties/children.
+import assert from 'node:assert/strict';
+import { parseMinor,formatMinor,addMinor,multiplyMinor } from '../src/domain/money.ts';
+import { weeklyPeriod } from '../src/domain/ledger/period.ts';
+import { reduceCapture,reduceRefund } from '../src/domain/ledger/state.ts';
+import { readModes } from '../src/server/env.ts';
+import { canonicalJson } from '../src/shared/canonical.ts';
+const start=performance.now();
+assert.equal(parseMinor('0.29','USD'),29);
+assert.equal(formatMinor(-1000000000000,'USD'),'-10000000000.00');
+assert.throws(()=>parseMinor('1.001','USD'));
+assert.throws(()=>parseMinor('1.0','JPY'));
+assert.throws(()=>addMinor(1000000000000,1));
+assert.equal(multiplyMinor(999,3),2997);
+assert.equal(weeklyPeriod(Date.parse('2026-10-18T16:00:00Z')).periodKey,'2026-W43@Asia/Singapore');
+assert.equal(weeklyPeriod(Date.parse('2020-12-31T16:00:00Z')).periodKey,'2020-W53@Asia/Singapore');
+const r={id:'r',ownerId:'o',mandateId:'m',policyVersion:1,policyHash:'h',periodKey:'p',restoration:'never_restore',state:'RELEASED',amount:3999,holdMinor:0,capturedMinor:0,externalRefundedMinor:0,orderId:'ORDER',anomalyReasons:[],releaseOnResolve:true,createdAt:0,updatedAt:0};
+const captured=reduceCapture(r,4000,[],'C',1);
+assert.equal(captured.holdReleased,0);assert.equal(captured.reservation.capturedMinor,4000);assert.ok(captured.reasons.includes('CAPTURE_AFTER_RELEASE'));
+const refund={id:'f',captureId:'C',reservationId:'r',amount:1000,state:'FAILED',completedApplied:false,providerRefundId:'F',createdAt:0,updatedAt:0};
+const complete=reduceRefund(refund,'COMPLETED',true,1);
+assert.equal(complete.completedAdded,1000);assert.equal(complete.restoredAdded,1000);assert.equal(complete.contradiction,true);
+assert.equal(reduceRefund(complete.refund,'COMPLETED',true,2).completedAdded,0);
+assert.deepEqual(readModes({}),{paypal:'fixture',llm:'fixture',vault:'off'});
+assert.throws(()=>readModes({PAYPAL_MODE:'sandbox',PAYPAL_BASE_URL:'https://example.invalid'}));
+assert.equal(canonicalJson({b:2,a:1}),'{"a":1,"b":2}');
+process.stdout.write(JSON.stringify({check:'tiny fixed pure assertions',assertions:18,elapsedMs:performance.now()-start,node:process.version})+'\n');

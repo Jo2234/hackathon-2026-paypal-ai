@@ -1,0 +1,42 @@
+[
+  {
+    "id": "coffee_tea",
+    "label": "Coffee Tea"
+  },
+  {
+    "id": "pantry_snacks",
+    "label": "Pantry Snacks"
+  },
+  {
+    "id": "paper",
+    "label": "Paper"
+  },
+  {
+    "id": "printer_supplies",
+    "label": "Printer Supplies"
+  },
+  {
+    "id": "cleaning",
+    "label": "Cleaning"
+  },
+  {
+    "id": "desk_supplies",
+    "label": "Desk Supplies"
+  },
+  {
+    "id": "gift_cards",
+    "label": "Gift Cards"
+  },
+  {
+    "id": "alcohol",
+    "label": "Alcohol"
+  },
+  {
+    "id": "electronics",
+    "label": "Electronics"
+  },
+  {
+    "id": "furniture",
+    "label": "Furniture"
+  }
+]

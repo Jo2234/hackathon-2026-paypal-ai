@@ -1,0 +1,6 @@
+packages:
+  - "."
+
+# Required by Vite; approve only the exact locked esbuild install script.
+allowBuilds:
+  esbuild@0.28.2: true

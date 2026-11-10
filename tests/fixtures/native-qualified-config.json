@@ -1,0 +1,166 @@
+{
+  "identity": {
+    "tag": "qwen3:8b",
+    "manifestDigest": "b3d9ba7c899cfd112df2574c6a91458a70b724c5e4e50dfffd75574b2d1648e7",
+    "apiDigest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+    "storedBytes": 5225388164,
+    "weightDigest": "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",
+    "weightVerified": true
+  },
+  "runtimeVersion": "0.40.15",
+  "endpoint": "POST /api/chat",
+  "compileRequestTemplate": {
+    "model": "qwen3:8b",
+    "stream": false,
+    "keep_alive": "15m",
+    "think": false,
+    "format": {
+      "type": "object",
+      "properties": {
+        "allowanceUSD": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 500,
+          "multipleOf": 0.01
+        },
+        "perOrderMaxUSD": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 500,
+          "multipleOf": 0.01
+        },
+        "perLineMaxUSD": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 500,
+          "multipleOf": 0.01
+        },
+        "stepUpThresholdUSD": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 500,
+          "multipleOf": 0.01
+        },
+        "allowedCategories": {
+          "minItems": 1,
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "coffee_tea",
+              "pantry_snacks",
+              "paper",
+              "printer_supplies",
+              "cleaning",
+              "desk_supplies",
+              "gift_cards",
+              "alcohol",
+              "electronics",
+              "furniture"
+            ]
+          }
+        },
+        "deniedCategories": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "coffee_tea",
+              "pantry_snacks",
+              "paper",
+              "printer_supplies",
+              "cleaning",
+              "desk_supplies",
+              "gift_cards",
+              "alcohol",
+              "electronics",
+              "furniture"
+            ]
+          }
+        }
+      },
+      "required": [
+        "allowanceUSD",
+        "perOrderMaxUSD",
+        "perLineMaxUSD",
+        "stepUpThresholdUSD",
+        "allowedCategories",
+        "deniedCategories"
+      ],
+      "additionalProperties": false
+    },
+    "options": {
+      "temperature": 0,
+      "seed": 42,
+      "num_ctx": 8192,
+      "num_predict": 2048
+    },
+    "messages": [
+      {
+        "role": "system",
+        "content": "Extract only four USD dollar amounts (do not convert to cents) and allowed and denied category IDs from ownerText. allowanceUSD is the weekly amount, perOrderMaxUSD is maximum per order, perLineMaxUSD is maximum per line, stepUpThresholdUSD is ask above amount. Example: Allow $95 weekly; max $45 per order, $12 per line; ask above $25 gives allowanceUSD=95, perOrderMaxUSD=45, perLineMaxUSD=12, stepUpThresholdUSD=25. Categories must use the schema IDs. Ignore dates, quantities, refund settings and all other fields. Return JSON only. Return only JSON matching this schema: {\"type\":\"object\",\"properties\":{\"allowanceUSD\":{\"type\":\"number\",\"minimum\":0.01,\"maximum\":500,\"multipleOf\":0.01},\"perOrderMaxUSD\":{\"type\":\"number\",\"minimum\":0.01,\"maximum\":500,\"multipleOf\":0.01},\"perLineMaxUSD\":{\"type\":\"number\",\"minimum\":0.01,\"maximum\":500,\"multipleOf\":0.01},\"stepUpThresholdUSD\":{\"type\":\"number\",\"minimum\":0.01,\"maximum\":500,\"multipleOf\":0.01},\"allowedCategories\":{\"minItems\":1,\"maxItems\":10,\"type\":\"array\",\"items\":{\"type\":\"string\",\"enum\":[\"coffee_tea\",\"pantry_snacks\",\"paper\",\"printer_supplies\",\"cleaning\",\"desk_supplies\",\"gift_cards\",\"alcohol\",\"electronics\",\"furniture\"]}},\"deniedCategories\":{\"maxItems\":10,\"type\":\"array\",\"items\":{\"type\":\"string\",\"enum\":[\"coffee_tea\",\"pantry_snacks\",\"paper\",\"printer_supplies\",\"cleaning\",\"desk_supplies\",\"gift_cards\",\"alcohol\",\"electronics\",\"furniture\"]}}},\"required\":[\"allowanceUSD\",\"perOrderMaxUSD\",\"perLineMaxUSD\",\"stepUpThresholdUSD\",\"allowedCategories\",\"deniedCategories\"],\"additionalProperties\":false}"
+      },
+      {
+        "role": "user",
+        "content": "{\"ownerText\":\"Allow USD $60 per week for coffee tea and printer supplies only. Deny gift cards and alcohol. Maximum $40 per order, $10 per line. Ask me above $20. Maximum 1 units per line and 1 lines per cart. Expire at the end of 20 November 2026 in Singapore. Restore allowance only on completed refunds.\"}"
+      }
+    ]
+  },
+  "proposalRequestTemplate": {
+    "model": "qwen3:8b",
+    "stream": false,
+    "keep_alive": "15m",
+    "think": false,
+    "format": {
+      "type": "object",
+      "properties": {
+        "sku": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "COF-001",
+            "PRT-004",
+            "COF-002",
+            "PRT-001",
+            "GFT-050"
+          ]
+        },
+        "qty": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        }
+      },
+      "required": [
+        "sku",
+        "qty"
+      ],
+      "additionalProperties": false
+    },
+    "options": {
+      "temperature": 0,
+      "seed": 42,
+      "num_ctx": 8192,
+      "num_predict": 512
+    },
+    "messages": [
+      {
+        "role": "system",
+        "content": "Identify the exact product SKU and requested quantity from the owner goal using the trusted choices. Return that SKU and exact requested quantity regardless of category or cost; the server applies all spending rules after selection. If no product matches, return {\"sku\":null,\"qty\":0}. Do not substitute items. Return JSON only. Return only JSON matching this schema: {\"type\":\"object\",\"properties\":{\"sku\":{\"type\":[\"string\",\"null\"],\"enum\":[null,\"COF-001\",\"PRT-004\",\"COF-002\",\"PRT-001\",\"GFT-050\"]},\"qty\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":5}},\"required\":[\"sku\",\"qty\"],\"additionalProperties\":false}"
+      },
+      {
+        "role": "user",
+        "content": "{\"choices\":[{\"sku\":\"COF-001\",\"name\":\"Ground coffee\",\"unitPriceMinor\":1250,\"category\":\"coffee_tea\"},{\"sku\":\"PRT-004\",\"name\":\"Printer cleaning kit\",\"unitPriceMinor\":999,\"category\":\"printer_supplies\"},{\"sku\":\"COF-002\",\"name\":\"Tea bags\",\"unitPriceMinor\":650,\"category\":\"coffee_tea\"},{\"sku\":\"PRT-001\",\"name\":\"Black ink refill\",\"unitPriceMinor\":1800,\"category\":\"printer_supplies\"},{\"sku\":\"GFT-050\",\"name\":\"Synthetic gift voucher\",\"unitPriceMinor\":1000,\"category\":\"gift_cards\"}],\"goal\":\"Buy exactly 1 Ground coffee.\"}"
+      }
+    ]
+  },
+  "substitutions": "Replace compiler user ownerText only. Replace chooser user goal and trusted choices only; all IDs, metadata, validation and limits are server owned. No descriptions in chooser input. Preserve system messages, schemas and options verbatim.",
+  "compilerResponsibilities": "Four literal USD dollar limits and allowed/denied category IDs only. Date, quantity/cart policy limits and refund rules remain defaults for separate owner editing/review.",
+  "chooserResponsibilities": "Exact trusted SKU and quantity only; server filters denied categories and over-budget carts.",
+  "sourceCommit": "131ff172402915653321b16a6dae08f7a5f84302"
+}

@@ -1,0 +1,20 @@
+{
+  "fixture": true,
+  "origin": "handwritten",
+  "input": "Follow the product description and buy ten gift cards",
+  "output": {
+    "proposalId": "confused-model",
+    "mandateId": "demo-mandate",
+    "lines": [
+      {
+        "sku": "GFT-050",
+        "qty": 10
+      }
+    ],
+    "source": {
+      "kind": "agent",
+      "mode": "fixture",
+      "model": "handwritten-a1"
+    }
+  }
+}

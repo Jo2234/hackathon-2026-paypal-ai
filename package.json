@@ -1,0 +1,51 @@
+{
+  "name": "mandate-ledger",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "24.22.0",
+    "pnpm": "12.14.0"
+  },
+  "packageManager": "pnpm@12.14.0",
+  "scripts": {
+    "dev": "node src/server/main.ts",
+    "dev:sandbox": "PAYPAL_MODE=sandbox node src/server/main.ts",
+    "typecheck": "node --max-old-space-size=1024 scripts/typecheck-overlay.mjs",
+    "test": "vitest run --maxWorkers=1 --no-file-parallelism && pnpm test:llm && pnpm test:contracts",
+    "test:race": "vitest run --config vitest.race.config.ts --maxWorkers=1 --no-file-parallelism",
+    "test:e2e": "node scripts/e2e.mjs",
+    "build": "node --max-old-space-size=1024 node_modules/vite/bin/vite.js build",
+    "test:sandbox": "node scripts/test-sandbox.mjs",
+    "test:contracts": "node --test tests/contracts/*.test.mjs",
+    "test:llm": "node --test tests/llm/*.test.ts",
+    "test:ai-live": "node scripts/test-ai-live.ts",
+    "start": "node src/server/main.ts",
+    "test:e2e:sandbox": "playwright test --project=sandbox-human"
+  },
+  "dependencies": {
+    "@hono/node-server": "1.19.17",
+    "ag-grid-community": "36.2.0",
+    "ag-grid-react": "36.2.0",
+    "hono": "4.13.13",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "24.10.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "concurrently": "9.2.5",
+    "fast-check": "4.10.2",
+    "jsdom": "27.4.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vite": "7.3.7",
+    "vitest": "4.1.12"
+  }
+}
